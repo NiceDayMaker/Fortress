@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "stdlib.h": "c",
+        "windows.h": "c",
+        "stdio.h": "c",
+        "utils.h": "c",
+        "math.h": "c",
+        "projectile.h": "c",
+        "terrain.h": "c",
+        "time.h": "c",
+        "render.h": "c",
+        "player.h": "c"
+    }
+}
