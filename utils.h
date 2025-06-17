@@ -3,9 +3,6 @@
 
 #include <windows.h>
 
-
-#define COLOR_NONE		"\033[0m"
-
 typedef enum {
     COLORFG_BLACK = 30,
     COLORFG_RED,
@@ -44,6 +41,8 @@ typedef enum {
     COLORBG_BRIGHT_WHITE
 } ColorBG;
 
+void set_color(int r, int g, int b);
+void reset_color();
 void colorprint(ColorFG color_fg, ColorBG color_bg, const char* str);
 void gotoxy(int x, int y);
 

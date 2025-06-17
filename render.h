@@ -20,6 +20,7 @@ void render_clear_buffer();
 
 // 버퍼 쓰기
 void render_set_tile(int x, int y, TileType tile);
+void render_set_ui(int x, int y, Tile tile);
 void render_set_player(const Player* player);
 
 // 변경사항 업데이트

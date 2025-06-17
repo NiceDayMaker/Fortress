@@ -1,9 +1,9 @@
-#include "projectile.h"
-#include "render.h"
 #include <stdio.h>
 #include <math.h>
-#include <mmsystem.h>
-#pragma comment(lib,"winmm.lib")
+#include "game.h"
+#include "projectile.h"
+#include "render.h"
+#include "sound.h"
 
 void Projectile_init(Projectile* p, float power) {
     p->active = 0;
@@ -33,11 +33,30 @@ void Projectile_update(Projectile* p, Terrain* terrain) {
     float tx = p->pos.x;
     float ty = p->pos.y;
 
-    // 충돌 확인
-    if (tx < 0 || tx >= WIDTH || ty >= HEIGHT || terrain->get(terrain, (int)ty, (int)tx) == TILE_GROUND) {
-        PlaySound("./Resources/explosion.wav", NULL, SND_FILENAME | SND_ASYNC);
+    // 충돌
+    if (tx < 0 || tx >= WIDTH || ty >= HEIGHT - 1
+        || terrain->get(terrain, (int)ty, (int)tx) == TILE_GROUND
+        || terrain->get(terrain, (int)(ty + 0.2f), (int)(tx + 0.2f)) == TILE_GROUND
+        || terrain->get(terrain, (int)(ty + 0.2f), (int)(tx - 0.2f)) == TILE_GROUND
+        || terrain->get(terrain, (int)(ty - 0.2f), (int)(tx + 0.2f)) == TILE_GROUND
+        || terrain->get(terrain, (int)(ty - 0.2f), (int)(tx - 0.2f)) == TILE_GROUND
+    ) {
+        playExplosionSound();
         Terrain_destroy_circle(terrain, (int)tx, (int)ty, 2);
+        for(int i = 0; i < gameManager.playerCount; i++) {
+            Player* player = &gameManager.players[i];
+            float dx = player->pos.x - p->pos.x;
+            float dy = player->pos.y - (p->pos.y - 1.0f);
+            float distance_sqr = dx * dx + dy * dy;
+            if (distance_sqr <= 10.0f) {
+                player->health -= (int)((10.0f - distance_sqr) * 6.0f);
+                if (player->health < 0) {
+                    player->health = 0;
+                }
+            }
+        }
         p->active = 0;
+        passTurn(&gameManager);
     }
 }
 

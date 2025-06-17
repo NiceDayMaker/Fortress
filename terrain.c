@@ -6,14 +6,21 @@
 
 static void Terrain_generate_impl(Terrain* t) {
     int ground[WIDTH];
-    int y = HEIGHT * 2 / 3;
+    float y = HEIGHT * 2 / 5;
     srand((unsigned int)time(NULL));
 
-    for (int x = 0; x < WIDTH / 2; x++) {
-        y += (rand() % 3) - 1;
+    for (int x = 0; x < WIDTH / 5; x++) {
+        y += (rand() % 5) - 1;
         if (y < HEIGHT / 3) y = HEIGHT / 3;
-        if (y > HEIGHT - 3) y = HEIGHT - 3;
-        ground[x] = y;
+        if (y > HEIGHT - 5) y = HEIGHT - 5;
+        ground[x] = (int)y;
+    }
+
+    for (int x = WIDTH / 5; x < WIDTH / 2; x++) {
+        y += (rand() % 3) - 1.25f;
+        if (y < HEIGHT / 3) y = HEIGHT / 3;
+        if (y > HEIGHT - 5) y = HEIGHT - 5;
+        ground[x] = (int)y;
     }
 
     for (int x = 0; x < WIDTH / 2; x++) {
@@ -24,6 +31,11 @@ static void Terrain_generate_impl(Terrain* t) {
         for (int x = 0; x < WIDTH; x++) {
             t->map[y][x] = (y >= ground[x]) ? TILE_GROUND : TILE_EMPTY;
         }
+    }
+
+    for (int x = 0; x < WIDTH; x++) {
+        t->map[HEIGHT - 1][x] = TILE_BEDROCK;
+        t->map[HEIGHT - 2][x] = TILE_BEDROCK;
     }
 }
 

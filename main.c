@@ -1,37 +1,130 @@
-#include "terrain.h"
-#include "render.h"
-#include "player.h"
-#include "utils.h"
-
 #include <stdio.h>
+#include <stdlib.h>
 #include <windows.h>
+#include <conio.h>
 
-int main()
-{
-    Terrain terrain;
-    Terrain_init(&terrain);
+#include "game.h"
+#include "render.h"
+#include "utils.h"
+#include "sound.h"
 
-    Player player;
-    Player_init(&player, 8, 0, 0.2f, 2.0f);
+GameManager gameManager;
+
+int player1_keys[KEY_TOTAL] = { 'A', 'D', 'W' };
+int player2_keys[KEY_TOTAL] = { VK_NUMPAD4, VK_NUMPAD6, VK_NUMPAD8 };
+
+int main() {
+    GAMESET:
 
     render_init();
+    initSoundEngine();
 
-    for (;;)
-    {
+    FILE *fp = fopen("Resources/asciix4.txt", "rb");
+    if (fp == NULL) {
+        perror("Missing file: Resources/asciix4.txt");
+        return 1;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    long file_size = ftell(fp);
+    rewind(fp);
+
+    char *buffer = (char *)malloc(file_size + 1);
+    if (buffer == NULL) {
+        perror("Failed to allocate memory");
+        fclose(fp);
+        return 1;
+    }
+
+    fread(buffer, 1, file_size, fp);
+    buffer[file_size] = '\0';  // 문자열 종료
+
+    printf("%s", buffer);
+
+    free(buffer);
+    fclose(fp);
+    
+    gotoxy(WIDTH - 9, HEIGHT - 2);
+    printf("┌─────────────────┐");
+    gotoxy(WIDTH - 9, HEIGHT - 1);
+    printf("│                 │");
+    gotoxy(WIDTH - 9, HEIGHT);
+    printf("└─────────────────┘");
+    fflush(stdout);
+
+    float brightness = 0.2f;
+    float direction = 0.05f;
+
+    const int base_r = 100;
+    const int base_g = 200;
+    const int base_b = 255;
+
+    while (kbhit()) getch();
+
+    while (1) {
         DWORD start = get_current_time_ms();
 
-        Player_update(&player, &terrain);
+        int r = (int)(base_r * brightness);
+        int g = (int)(base_g * brightness);
+        int b = (int)(base_b * brightness);
 
-        render_clear_buffer();
-        for (int y = 0; y < HEIGHT; y++)
-            for (int x = 0; x < WIDTH; x++)
-                render_set_tile(x, y, terrain.get(&terrain, y, x));
-        render_set_player(&player);
-        render_present();
+        gotoxy(WIDTH - 5, HEIGHT - 1);
+        set_color(r, g, b);
+        printf("PRESS START");
+        reset_color();
+        fflush(stdout);
+
+        brightness += direction;
+        if (brightness >= 1.0f || brightness <= 0.2f) {
+            direction *= -1;
+        }
+
+        if(_kbhit()){
+            playSelectSound();
+            for(int i = 0; i < 10; i++) {
+                DWORD start = get_current_time_ms();
+
+                gotoxy(WIDTH - 5, HEIGHT - 1);
+                if(i % 2 == 0) {
+                    set_color(100, 200, 255);
+                } else {
+                    set_color(255, 255, 200);
+                }
+                printf("PRESS START");
+                reset_color();
+                fflush(stdout);
+
+                delay_to_maintain_fps(start, 50);
+            }
+            break;
+        }
 
         delay_to_maintain_fps(start, 50);
     }
 
-    render_shutdown();
+    printf("\033[2J");
+    fflush(stdout);
+
+    initGameManager(&gameManager);
+
+    gameManager.addPlayer(&gameManager, 0, 7.8f, HEIGHT / 3, 1, 0.2f, 2.5f, player1_keys);
+    gameManager.addPlayer(&gameManager, 1, WIDTH - 8, HEIGHT / 3, -1, 0.2f, 2.5f, player2_keys);
+
+    passTurn(&gameManager);
+
+    while (1)
+    {
+        DWORD start = get_current_time_ms();
+
+        updateGame(&gameManager);
+
+        if (gameManager.gameSet) {
+            shutdownGameManager(&gameManager);
+            goto GAMESET;
+        }
+
+        delay_to_maintain_fps(start, 50);
+    }
+
     return 0;
 }

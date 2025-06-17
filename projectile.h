@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "terrain.h"
 
-#define GRAVITY 0.1f
+#define GRAVITY 0.15f
 
 typedef struct {
     Vector2 pos;

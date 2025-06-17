@@ -1,15 +1,20 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
 
-#define WIDTH 48
-#define HEIGHT 27
+#define WIDTH 50
+#define HEIGHT 25
 
 typedef enum {
+    TILE_NULL = -1,
     TILE_EMPTY = 0,
     TILE_GROUND = 1,
-    TILE_PLAYER = 2,
-    TILE_PROJECTILE = 3,
-    TILE_TRAJECTORY = 4,
+    TILE_BEDROCK = 2,
+    TILE_PLAYER_LEFT = 3,
+    TILE_PLAYER_RIGHT = 4,
+    TILE_PROJECTILE = 5,
+    TILE_TRAJECTORY = 6,
+
+    TILE_UI = 100
 } TileType;
 
 typedef struct Terrain Terrain;

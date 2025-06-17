@@ -6,16 +6,21 @@
             "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe",
             "args": [
                 "-fdiagnostics-color=always",
+                "-std=c17",
+                "-O2",
                 "-g",
                 "main.c",
+                "game.c",
                 "utils.c",
                 "render.c",
                 "terrain.c",
                 "player.c",
                 "projectile.c",
-                "effect.c",
+                "input.c",
+                "sound.c",
                 "-o",
                 "${workspaceFolderBasename}.exe",
+                "-ldsound",
                 "-lwinmm"
             ],
             "options": {

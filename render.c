@@ -6,26 +6,33 @@
 
 static TileType curr_buffer[HEIGHT][WIDTH];
 static TileType prev_buffer[HEIGHT][WIDTH];
-
-static int player_facing = 1;
+static Tile ui_buffer[HEIGHT][WIDTH * 2];
 
 Tile tile_to_char(TileType tile_type) {
     Tile tile;
     switch (tile_type) {
-        case TILE_GROUND:       tile = (Tile){"##", COLORFG_WHITE, COLORBG_BROWN}; break;
-        case TILE_PLAYER:       tile = (Tile){player_facing == 1 ? "M=" : "=M", COLORFG_WHITE, COLORBG_BRIGHT_BLUE}; break;
+        case TILE_GROUND:       tile = (Tile){"##", COLORFG_BRIGHT_WHITE, COLORBG_BROWN}; break;
+        case TILE_BEDROCK:      tile = (Tile){"##", COLORFG_BLACK, COLORBG_BRIGHT_BLACK}; break;
+        case TILE_PLAYER_LEFT:  tile = (Tile){"=M", COLORFG_BRIGHT_WHITE, COLORBG_BRIGHT_BLUE}; break;
+        case TILE_PLAYER_RIGHT: tile = (Tile){"M=", COLORFG_BRIGHT_WHITE, COLORBG_BRIGHT_BLUE}; break;
         case TILE_PROJECTILE:   tile = (Tile){"()", COLORFG_WHITE, COLORBG_BRIGHT_BLUE}; break;
-        case TILE_TRAJECTORY:   tile = (Tile){"* ", COLORFG_WHITE, COLORBG_BRIGHT_BLUE}; break;
-        default:                tile = (Tile){"  ", COLORFG_WHITE, COLORBG_BRIGHT_BLUE}; break;
+        case TILE_TRAJECTORY:   tile = (Tile){"*", COLORFG_BRIGHT_WHITE, COLORBG_BRIGHT_BLUE}; break;
+        default:                tile = (Tile){"  ", COLORFG_BRIGHT_WHITE, COLORBG_BRIGHT_BLUE}; break;
     }
     return tile;
 }
 
 void render_init() {
+    system("chcp 65001"); // UTF-8 코드 페이지 설정
     printf("\033[?25l"); // 커서 숨기기
-    system("color 9F");
     printf("\033[2J"); // 전체 초기화
     fflush(stdout);
+
+    for (int y = 0; y < HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            prev_buffer[y][x] = TILE_NULL;
+        }
+    }
 }
 
 void render_shutdown() {
@@ -35,7 +42,7 @@ void render_shutdown() {
 
 void render_clear_buffer() {
     memset(curr_buffer, 0, sizeof(curr_buffer));
-    player_facing = 1;
+    memset(ui_buffer, 0, sizeof(ui_buffer));
 }
 
 void render_set_tile(int x, int y, TileType tile) {
@@ -47,10 +54,16 @@ void render_set_tile(int x, int y, TileType tile) {
     }
 }
 
+void render_set_ui(int x, int y, Tile tile) {
+    if (x >= 0 && x < WIDTH * 2 && y >= 0 && y < HEIGHT) {
+        ui_buffer[y][x] = tile;
+        curr_buffer[y][x / 2] = TILE_UI;
+    }
+}
+
 void render_set_player(const Player* player) {
     if (player->pos.x >= 0 && player->pos.x < WIDTH && player->pos.y >= 0 && player->pos.y < HEIGHT) {
-        curr_buffer[(int)player->pos.y][(int)player->pos.x] = TILE_PLAYER;
-        player_facing = player->facing;
+        curr_buffer[(int)player->pos.y][(int)player->pos.x] = player->facing == 1 ? TILE_PLAYER_RIGHT : TILE_PLAYER_LEFT;
     }
     
     if(player->fire_state != FIRE_STATE_IDLE) {
@@ -59,16 +72,39 @@ void render_set_player(const Player* player) {
     }
 
     Projectile_render(&player->projectile);
+
+    int state_bar_width = 10;
+    int health_units = (int)((player->health / 100.0f) * state_bar_width);
+    int fuel_units = (int)((player->fuel / 100.0f) * state_bar_width);
+
+    for (int i = 0; i < state_bar_width; i++) {
+        int bar_x = (int)player->pos.x * 2 + 1 - state_bar_width / 2 + i;
+        int bar_y = (int)player->pos.y + 2;
+
+        if (bar_x >= 0 && bar_x < WIDTH * 2 && bar_y >= 0) {
+            render_set_ui(bar_x, bar_y, (Tile){"▀",i < health_units ? COLORFG_BRIGHT_RED : COLORFG_BLACK, i < fuel_units ? COLORBG_BRIGHT_BROWN : COLORBG_BLACK});
+        }
+    }
 }
 
 void render_present() {
     for (int y = 0; y < HEIGHT; y++) {
         for (int x = 0; x < WIDTH; x++) {
-            if (curr_buffer[y][x] != prev_buffer[y][x] || curr_buffer[y][x] == TILE_PLAYER) {
+            if (curr_buffer[y][x] != prev_buffer[y][x] || curr_buffer[y][x] == TILE_PLAYER_LEFT || curr_buffer[y][x] == TILE_PLAYER_RIGHT) {
                 Tile tile = tile_to_char(curr_buffer[y][x]);
-                gotoxy(x, y);
+                gotoxy(x * 2 + 1, y + 1);
                 colorprint(tile.color_fg, tile.color_bg, tile.str);
                 prev_buffer[y][x] = curr_buffer[y][x];
+            }
+
+            if (ui_buffer[y][x * 2].color_fg){
+                gotoxy(x * 2 + 1, y + 1);
+                colorprint(ui_buffer[y][x * 2].color_fg, ui_buffer[y][x * 2].color_bg, ui_buffer[y][x * 2].str);
+            }
+
+            if (ui_buffer[y][x * 2 + 1].color_fg){
+                gotoxy(x * 2 + 2, y + 1);
+                colorprint(ui_buffer[y][x * 2 + 1].color_fg, ui_buffer[y][x * 2 + 1].color_bg, ui_buffer[y][x * 2 + 1].str);
             }
         }
     }

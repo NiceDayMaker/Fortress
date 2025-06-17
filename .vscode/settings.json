@@ -9,6 +9,19 @@
         "terrain.h": "c",
         "time.h": "c",
         "render.h": "c",
-        "player.h": "c"
+        "player.h": "c",
+        "mmsystem.h": "c",
+        "sound.h": "c",
+        "bit": "c",
+        "cmath": "c",
+        "compare": "c",
+        "concepts": "c",
+        "type_traits": "c",
+        "limits": "c",
+        "typeinfo": "c",
+        "utility": "c",
+        "game.h": "c",
+        "wchar.h": "c",
+        "conio.h": "c"
     }
 }
