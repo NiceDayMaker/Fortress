@@ -22,6 +22,7 @@
         "utility": "c",
         "game.h": "c",
         "wchar.h": "c",
-        "conio.h": "c"
+        "conio.h": "c",
+        "miniaudio.h": "c"
     }
 }

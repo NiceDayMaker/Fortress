@@ -3,6 +3,7 @@
 #include "game.h"
 #include "render.h"
 
+// 플레이어 추가
 static void add_player_impl(GameManager* gm, int id, float x, float y, int facing, float speed, float power, const int key_map[KEY_TOTAL]) {
     if (gm->playerCount >= MAX_PLAYERS) {
         printf("더 이상 플레이어를 추가할 수 없습니다.\n");
@@ -14,6 +15,7 @@ static void add_player_impl(GameManager* gm, int id, float x, float y, int facin
     gm->playerCount++;
 }
 
+// 게임 종료 처리
 static void gameSet_impl(GameManager* gm, int death_id) {
     if (death_id < 0 || death_id >= gm->playerCount) {
         printf("Error: ID Out of range\n");
@@ -74,6 +76,7 @@ static void gameSet_impl(GameManager* gm, int death_id) {
     gm->gameSet = 1;
 }
 
+// 게임 매니저 초기화
 void initGameManager(GameManager* gm) {
     memset(gm, 0, sizeof(GameManager));
 
@@ -129,17 +132,21 @@ void initGameManager(GameManager* gm) {
     Sleep(3000);
 }
 
+// 게임 매니저 메모리 해제
 void shutdownGameManager(GameManager* gm) {
     render_shutdown();
     shutdownSoundEngine();
 }
 
+// 게임 루프
 void updateGame(GameManager* gm) {
+    // 플레이어 업데이트
     for (int i = 0; i < gm->playerCount; i++) {
         Player* player = &gm->players[i];
         player->update(player, &gm->terrain);
     }
 
+    // 게임 종료 조건 확인
     for (int i = 0; i < gm->playerCount; i++) {
         Player* player = &gm->players[i];
         if (player->health <= 0) {
@@ -148,23 +155,28 @@ void updateGame(GameManager* gm) {
         }
     }
 
+    // 버퍼 초기화
     render_clear_buffer();
 
+    // 타일 버퍼 쓰기
     for (int y = 0; y < HEIGHT; y++) {
         for (int x = 0; x < WIDTH; x++) {
             render_set_tile(x, y, gm->terrain.get(&gm->terrain, y, x));
         }
     }
     
+    // 플레이어 버퍼 쓰기
     for (int i = 0; i < gm->playerCount; i++) {
         if (gm->players[i].health > 0) {
             render_set_player(&gm->players[i]);
         }
     }
     
+    // 렌더링
     render_present();
 }
 
+// 게임 턴을 넘기는 함수
 static int turn = MAX_PLAYERS - 1;
 
 void passTurn(GameManager* gm){

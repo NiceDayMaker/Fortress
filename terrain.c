@@ -4,6 +4,7 @@
 #include <time.h>
 #include <windows.h>
 
+// 지형 생성 (펄린 노이즈)
 static void Terrain_generate_impl(Terrain* t) {
     int ground[WIDTH];
     float y = HEIGHT * 2 / 5;
@@ -39,17 +40,20 @@ static void Terrain_generate_impl(Terrain* t) {
     }
 }
 
+// 타일 반환
 static TileType Terrain_get_impl(const Terrain* t, int y, int x) {
     if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) return TILE_EMPTY;
     return t->map[y][x];
 }
 
+// 지형 초기화
 void Terrain_init(Terrain* t) {
     t->generate = Terrain_generate_impl;
     t->get = Terrain_get_impl;
     t->generate(t);
 }
 
+// 지형 파괴
 void Terrain_destroy_circle(Terrain* t, int cx, int cy, int radius) {
     for (int y = cy - radius; y <= cy + radius; y++) {
         for (int x = cx - radius; x <= cx + radius; x++) {

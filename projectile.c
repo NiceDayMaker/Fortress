@@ -5,11 +5,13 @@
 #include "render.h"
 #include "sound.h"
 
+// 발사체 초기화
 void Projectile_init(Projectile* p, float power) {
     p->active = 0;
     p->power = power;
 }
 
+// 발사체를 지정된 위치에서 지정된 각도와 파워로 발사
 void Projectile_fire(Projectile* p, Vector2 start, float angle_deg, float power, int facing) {
     if (p->active) return;
     p->pos = start;
@@ -20,6 +22,7 @@ void Projectile_fire(Projectile* p, Vector2 start, float angle_deg, float power,
     p->active = 1;
 }
 
+// 발사체 업데이트
 void Projectile_update(Projectile* p, Terrain* terrain) {
     if (!p->active) return;
 
@@ -60,6 +63,7 @@ void Projectile_update(Projectile* p, Terrain* terrain) {
     }
 }
 
+// 발사체 궤적 렌더링
 void Projectile_trajectory_render(const Projectile* p, Vector2 start, float angle_deg, float power, int facing) {
     float rad = angle_deg * (3.141592f / 180.0f);
     for (float t = 0; t <= 10.0f; t += 2.0f) {
@@ -69,6 +73,7 @@ void Projectile_trajectory_render(const Projectile* p, Vector2 start, float angl
     }
 }
 
+// 발사체 렌더링
 void Projectile_render(const Projectile* p) {
     if (!p->active) return;
     int x = (int)(p->pos.x);

@@ -4,6 +4,7 @@
 // MiniAudio 헤더 포함
 #include "miniaudio.h"
 
+// local 사운드 객체
 typedef struct {
     ma_sound moveSound;
     ma_sound setSound;

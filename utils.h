@@ -3,6 +3,7 @@
 
 #include <windows.h>
 
+// 전경색
 typedef enum {
     COLORFG_BLACK = 30,
     COLORFG_RED,
@@ -22,6 +23,7 @@ typedef enum {
     COLORFG_BRIGHT_WHITE
 } ColorFG;
 
+// 배경색
 typedef enum {
     COLORBG_BLACK = 40,
     COLORBG_RED,
@@ -41,16 +43,19 @@ typedef enum {
     COLORBG_BRIGHT_WHITE
 } ColorBG;
 
+// 콘솔 제어
 void set_color(int r, int g, int b);
 void reset_color();
 void colorprint(ColorFG color_fg, ColorBG color_bg, const char* str);
 void gotoxy(int x, int y);
 
+// 2차원 벡터
 typedef struct {
     float x;
     float y;
 } Vector2;
 
+// FPS 제어
 DWORD get_current_time_ms();
 void delay_to_maintain_fps(DWORD frame_start_time, int target_ms);
 

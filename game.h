@@ -18,9 +18,11 @@ struct GameManager {
 
 extern GameManager gameManager;
 
+//초기화
 void initGameManager(GameManager* gm);
 void shutdownGameManager(GameManager* gm);
 
+// 게임 루프
 void updateGame(GameManager* gm);
 void passTurn(GameManager* gm);
 

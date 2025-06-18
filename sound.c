@@ -13,12 +13,12 @@
 #define PATH_SHOOT      "./Resources/shoot.wav"
 #define PATH_SELECT     "./Resources/select.wav"
 
-// 전역 엔진 및 사운드 객체
+// 사운드 엔진 및 global 사운드 객체
 static ma_engine engine;
 static ma_sound explosionSound;
 static ma_sound selectSound;
 
-// 초기화
+// 사운드 엔진 초기화
 void initSoundEngine() {
     if (ma_engine_init(NULL, &engine) != MA_SUCCESS) {
         fprintf(stderr, "Audio engine init failed.\n");
@@ -33,6 +33,7 @@ void initSoundEngine() {
     }
 }
 
+// 사운드 객체 구조체 초기화
 void initSounds(SoundEffects* effects) {
     if (ma_sound_init_from_file(&engine, PATH_MOVE, 0, NULL, NULL, &effects->moveSound) != MA_SUCCESS) {
         fprintf(stderr, "Failed to load: %s\n", PATH_MOVE);
@@ -47,13 +48,14 @@ void initSounds(SoundEffects* effects) {
     }
 }
 
-// 종료
+// local 사운드 객체 메모리 해제
 void freeSounds(SoundEffects* effects) {
     ma_sound_uninit(&effects->moveSound);
     ma_sound_uninit(&effects->setSound);
     ma_sound_uninit(&effects->shootSound);
 }
 
+// 사운드 엔진 종료
 void shutdownSoundEngine() {
     ma_sound_uninit(&explosionSound);
     ma_sound_uninit(&selectSound);

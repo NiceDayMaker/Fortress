@@ -6,32 +6,39 @@
 #include "input.h"
 #include "sound.h"
 
+// 플레이어 턴 설정
 void Player_onTurn_impl(Player* p) {
     p->isTurn = 1;
     p->fuel = 100;
 }
 
+// 플레이어 업데이트
 void Player_update_impl(Player* p, const Terrain* terrain) {
     Vector2 new_pos = p->pos;
     int moved = 0;
 
+    // 플레이어가 죽었을 경우 업데이트 무시
     if(p->health <= 0) {
         return;
     }
 
+    // 플레이어가 턴이 아닐 경우 입력을 무시
     if(!p->isTurn) {
         goto PASSINPUT;
     }
 
+    // 입력 업데이트
     Input_update(&p->input);
 
     switch (p->fire_state)
     {
+        // 대기 상태
         case FIRE_STATE_IDLE:
             if(p->fuel <= 0){
                 goto NOFUEL;
             }
 
+            // 이동 입력
             if (Input_onHold(&p->input, KEY_LEFT)) {
                 float tx = p->pos.x - p->speed;
                 float ty = p->pos.y;
@@ -79,6 +86,7 @@ void Player_update_impl(Player* p, const Terrain* terrain) {
             
             NOFUEL:
 
+            // 연료 소모 및 사운드 처리
             if (moved) {
                 p->fuel--;
                 playMoveSound(&p->sound_effects);
@@ -87,6 +95,7 @@ void Player_update_impl(Player* p, const Terrain* terrain) {
                 stopMoveSound(&p->sound_effects);
             }
 
+            // 발사 입력
             if (Input_onDown(&p->input, KEY_SHOOT)) {
                 p->timer = 0.5f; // 타이머 초기화
                 p->direction = 1; // 왕복 방향 초기화
@@ -98,6 +107,7 @@ void Player_update_impl(Player* p, const Terrain* terrain) {
             }
             break;
         
+        // 각도 조절
         case FIRE_STATE_ANGLE:
             p->timer += ANGLE_STEP * p->direction;
             if (p->timer >= 1.0f) {
@@ -117,6 +127,7 @@ void Player_update_impl(Player* p, const Terrain* terrain) {
             }
             break;
         
+        // 파워 조절
         case FIRE_STATE_POWER:
             p->timer += POWER_STEP * p->direction;
             if (p->timer >= 1.0f) {
@@ -136,6 +147,7 @@ void Player_update_impl(Player* p, const Terrain* terrain) {
             }
             break;
         
+        // 발사 준비 완료
         case FIRE_STATE_READY:
             if (Input_onDown(&p->input, KEY_SHOOT)) {
                 p->fire_state = FIRE_STATE_IDLE;
@@ -155,9 +167,11 @@ void Player_update_impl(Player* p, const Terrain* terrain) {
         p->pos.y += 1;
     }
 
+    // 발사체 업데이트
     Projectile_update(&p->projectile, (Terrain*)terrain);
 }
 
+// 플레이어가 발사할 때 호출되는 함수
 void Player_fire_impl(Player* p) {
     p->isTurn = 0;
     p->fuel = 0;
@@ -166,6 +180,7 @@ void Player_fire_impl(Player* p) {
     Projectile_fire(&p->projectile, fire_pos, p->angle_deg, p->power, p->facing);
 }
 
+// 플레이어 초기화
 void Player_init(Player* p, int id, float x, float y, int facing, float speed, float power, const int key_map[KEY_TOTAL]) {
     Input_init(&p->input, key_map);
     initSounds(&p->sound_effects);

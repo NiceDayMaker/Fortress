@@ -5,6 +5,7 @@
 #include "player.h"
 #include "utils.h"
 
+// 타일 [문자열, 전경색, 배경색]
 typedef struct {
     char* str;
     ColorFG color_fg;

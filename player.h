@@ -8,6 +8,7 @@
 #define ANGLE_STEP 0.1f
 #define POWER_STEP 0.1f
 
+// 플레이어 상태
 typedef enum {
     FIRE_STATE_IDLE,
     FIRE_STATE_ANGLE,

@@ -4,6 +4,7 @@
 #define WIDTH 50
 #define HEIGHT 25
 
+// 타일 타입
 typedef enum {
     TILE_NULL = -1,
     TILE_EMPTY = 0,
@@ -17,6 +18,7 @@ typedef enum {
     TILE_UI = 100
 } TileType;
 
+// 지형 구조체
 typedef struct Terrain Terrain;
 
 struct Terrain {

@@ -19,6 +19,7 @@ int main() {
     render_init();
     initSoundEngine();
 
+    //타이틀 이미지 로딩
     FILE *fp = fopen("Resources/asciix4.txt", "rb");
     if (fp == NULL) {
         perror("Missing file: Resources/asciix4.txt");
@@ -59,8 +60,10 @@ int main() {
     const int base_g = 200;
     const int base_b = 255;
 
+    // 입력 버퍼 비우기
     while (kbhit()) getch();
 
+    // 타이틀 화면에서 시작 버튼을 누를 때까지 대기
     while (1) {
         DWORD start = get_current_time_ms();
 
@@ -105,19 +108,23 @@ int main() {
     printf("\033[2J");
     fflush(stdout);
 
+    // 게임 매니저 초기화
     initGameManager(&gameManager);
 
+    // 플레이어 초기화
     gameManager.addPlayer(&gameManager, 0, 7.8f, HEIGHT / 3, 1, 0.2f, 2.5f, player1_keys);
     gameManager.addPlayer(&gameManager, 1, WIDTH - 8, HEIGHT / 3, -1, 0.2f, 2.5f, player2_keys);
 
     passTurn(&gameManager);
 
+    // 게임 루프
     while (1)
     {
         DWORD start = get_current_time_ms();
 
         updateGame(&gameManager);
 
+        // 게임 재시작
         if (gameManager.gameSet) {
             shutdownGameManager(&gameManager);
             goto GAMESET;
